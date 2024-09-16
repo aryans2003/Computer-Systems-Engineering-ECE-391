@@ -1,0 +1,118 @@
+Bugs for CP1
+
+Bug #1 - Aryan, paging
+
+Date: 03/18/2024
+Problem: Not handling bits properly
+Fix: Read through documentation for the offsets in paging.h for memory bits, changed to 22 (4MB) and 12(4KB). Also checking to make sure that different addresses are being set properly.
+
+Bug #2 - Aryan, paging
+
+Date: 03/18/2024
+Problem: Control Registers not updating properly
+Fix: Include '$' before hex value
+
+Bug #3 - Aryan and Kushal, paging
+
+Date: 03/19/2024
+Problem: Boot Loop
+Fix: Initially a TA told us that it was our ASM code, however our C code for setting the struct values in paging.c were not correct. We had to read through documentation and fix it accordingly.
+
+Bug #4 - Aryan, paging
+
+Date: 03/18/2024
+Problem: Syntax error when initializing page directory in paging.h
+Fix: Ended up not being a syntax error at that line itself, but when defining the typset the declaration after brackets was wrong
+
+Bug #5 - Aryan and Kushal, paging
+
+Date: 03/19/2024
+Problem: Struct issues in paging.h
+Fix: Had to abandon a method in which we defined 2 structs for 4KB and 4MB separately, made them into a union, and then only defined 1 PDE to be used when defining struct values in paging.C
+Instead, we combined the structs into 1 typedef and then combined the values since they are all 32-bits anyways. We created 1 PDE variable and 2 PTEs for manipulation in paging.c
+
+Bug #6 - Aryan and Kushal, paging
+
+Date: 03/19/2024
+Problem: Boot Loop
+Fix: Accessing the first 4KB page at the 0th index within an entire loop from 0 to the 1024 4-byte entries will cause paging to boot loop.
+
+Bugs for CP2
+
+Bug #7 - Aryan, Pranav, Riyaan, filesystem
+Problem: Displaying files for read_dentry_by_index
+Fix: We had to look inside the fsdir files to see how many files we wanted and kept changing our loop maximum value until we saw all the files we needed.
+
+Bug #8 - Aryan, Pranav, filesystem
+Problem: Calculating index for read_directory
+Fix: We defined a global variable for file_count, and incremented it each time a filename was copied to our buffer. This variable was passed into our read_dentry_by_index call in read_directory
+
+Bug # 9 - Aryan, Pranav, filesystem
+Problem: Utilizing proper stdlib functions
+Fix: Being aware of the different file types used and when to use functions such as strcmp, strncpy, memcpy instead of arithmetic comparisons in C
+
+Bug # 10 - Aryan, Pranav, filesystem
+Problem: Extra smiley face ASCII char printed at the end of "verylargetextwithverylongname.txt"
+Fix: At first, I thought we had to subtract one from the length value we used for strcpy. When that took out both the x and the smiley face, we knew it was wrong. Instead, using putc instead of a printf got rid of the formatting errors.
+
+Bug # 11 - Kushal, RTC
+Problem: For the RTC write function I tried doing a function that would convert the passed in frequencies to match an index on the 
+array I created. This wasn't changing the frequencies as expected and would remain at the default 2 Hz frequency.
+Fix: I made a switch statement instead to convert the frequencies to the right index on the frequency array to manage each frquency.
+
+Bug # 12 - Kushal, keyboard
+Problem: The backspace key would fill up the keyboard buffer and not allow us to enter more characters as the backspace key was put into
+the keyboard buffer.
+Fix: To fix this I made a special case for backspace which would remove the previous character in the buffer and decrement the keyboard index 
+variable.
+
+Bugs for CP3
+
+Bug # 13 - Aryan, syscall linkage
+Problem: We had this error in which when typing ls, the value of EBX (our first arg) would always end up at 98 when calling read for the first file,
+thereby making the value of fd also 98
+Fix: Had to also include an 'sti' instruction to set the interrupt flag
+
+Bug # 14 - Pranav, syscall linkage
+Problem: We were getting a page fault when a negative system call number was passed in
+Fix: Changed equal to zero check to less than or equal to zero check
+
+Bug # 15 - Pranav, stdin, stdout
+Problem: We were getting issues with stdin and stdout not working
+Fix: Changed it so stdin is only accessed by read and stdout is only accessed by write
+
+Bugs for CP4
+
+Bug # 16 - Pranav, cat
+Problem: For verylargetextwithverylongname.txt, the filename would overwrite the args causing them to be empty
+Fix: Had to include a check to make sure only 32 chars were written
+
+Bug # 17 - Pranav, cat
+Problem: For cat, only the first line would be printed to the screen
+Fix: Removed a check in terminal write for a newline char
+
+Bug # 18 - Pranav, cat
+Problem: For ELF files, the full file would not print
+Fix: Changed the while loop logic to be simpler and added an if statement to check for null chars
+
+Bug # 19 - Aryan and Kushal, vidmap
+Problem: We kept getting the "abnormal" error when trying to execute fish
+Fix: Read through the documentation and recalculated the ending address (upper end of our invalid location check)
+
+Bug # 20 - Aryan, vidmap
+Problem: Compiler warnings for comparison and differing in signedness 
+Fix: Using the correct unsingned integer bit value, and proper pointer args since screen_start was a double pointer
+
+Bugs for CP5
+
+Bug # 21 - Pranav, num_shells
+Problem: Unlimited shells able to be created which caused page faults
+Fix: Added a check to limit number of shells created initially to 3
+
+Bug # 22 - Pranav, num_processes
+Problem: Unlimited processes able to be created which caused page faults
+Fix: Added a check to limit number of processes to 6 (including 3 terminals)
+
+Bug # 23 - Pranav, screen flickering
+Problem: Screen flickering when changing terminals
+Fix: Added cli, sti to terminal_write

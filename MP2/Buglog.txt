@@ -1,0 +1,53 @@
+1)
+Bug: The status bar was showing as a black glitched bar and you as the avatar moved into it, the maze redrew onto the bar area and you could see the avatar moving
+Solution: Had to modify offset sizes when writing onto the screen (when to use 5760 vs 1440)
+
+2)
+Bug: after drawing the status bar, there was one line of pixels that would glitch and show the borders of the maze at the bottom. I tried to fix this originally
+by changing where I called the status bar routine in mazegame.c but then this shifted it downward (one line of glitched pixels went to the top)
+Solution: Don't know exactly what fixed it, but changed target image to 5760, removed size of status bar in copy_image, and called status_bar
+after the if(need_redraw) instead of within it
+
+3)
+Bug: Printing out short white bars, then long white bars, then a large white block instead of text in white color
+Solution: update mask value inside 2nd loop instead of first, also be consistent with data types, and use right index formula
+Originally, my masking value did not update and therefore no ASCII char would be printed, even trying to hardcode values
+
+4)
+Bug: that the text_to_graphics would output weird looking text
+Solution: changed my buffer plane call in copy_status bar to build_buffer_plane + (1440 * (3-i)), CA helped on this but I believe it had to
+do with order of planes being indexed in video memory (mapping shown on MP2 doc)
+
+5)
+Bug: when drawing the time in xx:xx format onto the screen, I kept getting an extra '0' added when the time reached past 9 seconds
+Solution: Was performing mod and div by 60, instead of by 10 to simply offset the MSB or LSB instead of calculating some time offset
+
+6)
+Bug: text was not offset properly on status bar
+Solution: modify current index offset to add to the loop for the FONT_HEIGHT (rows)
+
+7)
+Bug: text was not centered properly on status bars
+Solution: initial calculations had the average of the width of the screen and size of ascii characters
+size of ascii characters calculated by the length of all the chars * their width
+forgot to, in addition to dividing by 2 to calculate their average, also div by 4 to split it up by plane
+
+8)
+Bug: time would stop once the avatar hit a maze and only restart once they moved again
+Solution: update the if condition in need_redraw
+
+8)
+Bug: masked blocks would always be drawn when not need_redraw
+Solution: remove draw_full_block case outside if(need_redraw) and call it twice within the condition and comment out need_redraw = 0 in if loop
+
+9)
+Bug: colors would only iterate through blue, orange, black
+Solution: use proper algorithm to compute a number between [0,15] range to pull from unsigned char rgb values, also use VGA basic colors not 'wall and player colors'
+
+10)
+Bug: Colors would be randomized each game, meaning they would not be tagged to a specific level
+Solution: instead of using random variables each time, use a specific variable such as level to % by 16 to ensure it's within range, and thus keeps the color same across level
+
+11)
+Bug: Colors would be randomized for first level as well
+Solution: hardcoded level 1 such that it will always have gray status bar, blue walls, and the rest of the gradesheet has no specific color requirements thereafter
